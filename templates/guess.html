@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Number Guessing Game</h1>
+        <p>Guess a number between 0 and 100:</p>
+        <input type="number" id="guess" name="guess" min="0" max="100">
+        <button onclick="checkGuess()">Submit</button>
+        <button onclick="resetGame()">Reset</button>
+        <p id="message"></p>
+    </div>
+    <script>
+        function checkGuess() {
+            var guessInput = document.getElementById('guess');
+            var guess = parseInt(guessInput.value);
+            var message = document.getElementById('message');
+            if (isNaN(guess) || guess < 0 || guess > 100) {
+                message.textContent = "Please enter a valid number between 0 and 100.";
+                message.style.color = "red";
+            } else {
+                var xml=new XMLHttpRequest()
+                xml.open("post"," http://127.0.0.1:3000/submit_query",true)
+                xml.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+                xml.onreadystatechange=function(){
+                    if(xml.readyState==4 && xml.status==200){
+                        response=JSON.parse(xml.responseText)
+                        message.textContent=response.message
+                        if(response.message.includes("correct")){
+                            message.style.color="green"
+                        }else{
+                            message.style.color="red"
+                        }
+                    }
+                }
+                xml.send("guess=" +guess)
+            }
+        }
+        function resetGame(){
+            var message=document.getElementById('message')
+            message.textContent=''
+            var guess=document.getElementById('guess')
+            guess.value=''
+            var xml=new XMLHttpRequest()
+            xml.open("get"," http://127.0.0.1:3000/reset_game",true)
+            xml.send()
+        }
+    </script>
+</body>
+</html>
